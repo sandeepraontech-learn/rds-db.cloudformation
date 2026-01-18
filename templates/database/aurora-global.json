@@ -1,0 +1,73 @@
+{
+  "AWSTemplateFormatVersion": "2010-09-09",
+  "Description": "Aurora PostgreSQL Global Database",
+
+  "Parameters": {
+    "VpcId": { "Type": "AWS::EC2::VPC::Id" },
+    "SubnetIds": { "Type": "List<AWS::EC2::Subnet::Id>" },
+    "DBUsername": { "Type": "String", "NoEcho": true },
+    "DBPassword": { "Type": "String", "NoEcho": true }
+  },
+
+  "Resources": {
+    "DBSecurityGroup": {
+      "Type": "AWS::EC2::SecurityGroup",
+      "Properties": {
+        "GroupDescription": "Aurora DB SG",
+        "VpcId": { "Ref": "VpcId" },
+        "SecurityGroupIngress": [
+          {
+            "IpProtocol": "tcp",
+            "FromPort": 5432,
+            "ToPort": 5432,
+            "CidrIp": "10.0.0.0/16"
+          }
+        ]
+      }
+    },
+
+    "DBSubnetGroup": {
+      "Type": "AWS::RDS::DBSubnetGroup",
+      "Properties": {
+        "DBSubnetGroupDescription": "Aurora Subnets",
+        "SubnetIds": { "Ref": "SubnetIds" }
+      }
+    },
+
+    "GlobalCluster": {
+      "Type": "AWS::RDS::GlobalCluster",
+      "Properties": {
+        "GlobalClusterIdentifier": "aurora-global-db",
+        "Engine": "aurora-postgresql",
+        "EngineVersion": "17.4"
+      }
+    },
+
+    "PrimaryCluster": {
+      "Type": "AWS::RDS::DBCluster",
+      "Properties": {
+        "Engine": "aurora-postgresql",
+        "GlobalClusterIdentifier": {
+          "Ref": "GlobalCluster"
+        },
+        "MasterUsername": { "Ref": "DBUsername" },
+        "MasterUserPassword": { "Ref": "DBPassword" },
+        "DBSubnetGroupName": { "Ref": "DBSubnetGroup" },
+        "VpcSecurityGroupIds": [
+          { "Ref": "DBSecurityGroup" }
+        ]
+      }
+    },
+
+    "PrimaryInstance": {
+      "Type": "AWS::RDS::DBInstance",
+      "Properties": {
+        "DBClusterIdentifier": {
+          "Ref": "PrimaryCluster"
+        },
+        "DBInstanceClass": "db.r6g.large",
+        "Engine": "aurora-postgresql"
+      }
+    }
+  }
+}

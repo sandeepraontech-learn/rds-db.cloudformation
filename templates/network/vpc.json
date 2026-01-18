@@ -1,0 +1,60 @@
+{
+  "AWSTemplateFormatVersion": "2010-09-09",
+  "Description": "VPC with private subnets for Aurora",
+
+  "Parameters": {
+    "VpcCidr": {
+      "Type": "String",
+      "Default": "10.0.0.0/16"
+    },
+    "Subnet1Cidr": {
+      "Type": "String"
+    },
+    "Subnet2Cidr": {
+      "Type": "String"
+    }
+  },
+
+  "Resources": {
+    "VPC": {
+      "Type": "AWS::EC2::VPC",
+      "Properties": {
+        "CidrBlock": { "Ref": "VpcCidr" },
+        "EnableDnsSupport": true,
+        "EnableDnsHostnames": true
+      }
+    },
+
+    "Subnet1": {
+      "Type": "AWS::EC2::Subnet",
+      "Properties": {
+        "VpcId": { "Ref": "VPC" },
+        "CidrBlock": { "Ref": "Subnet1Cidr" },
+        "AvailabilityZone": { "Fn::Select": [0, { "Fn::GetAZs": "" }] }
+      }
+    },
+
+    "Subnet2": {
+      "Type": "AWS::EC2::Subnet",
+      "Properties": {
+        "VpcId": { "Ref": "VPC" },
+        "CidrBlock": { "Ref": "Subnet2Cidr" },
+        "AvailabilityZone": { "Fn::Select": [1, { "Fn::GetAZs": "" }] }
+      }
+    }
+  },
+
+  "Outputs": {
+    "VpcId": {
+      "Value": { "Ref": "VPC" }
+    },
+    "SubnetIds": {
+      "Value": {
+        "Fn::Join": [
+          ",",
+          [{ "Ref": "Subnet1" }, { "Ref": "Subnet2" }]
+        ]
+      }
+    }
+  }
+}

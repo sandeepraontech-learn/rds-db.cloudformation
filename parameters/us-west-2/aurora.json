@@ -1,0 +1,6 @@
+[
+  { "ParameterKey": "VpcId", "ParameterValue": "vpc-0d74f589953dff1ed" },
+  { "ParameterKey": "SubnetIds", "ParameterValue": "subnet-0c5a1006e13c10517,subnet-075a1a9f604ba804a" },
+  { "ParameterKey": "DBUsername", "ParameterValue": "dbadmin" },
+  { "ParameterKey": "DBPassword", "ParameterValue": "StrongPassword123!" }
+]
